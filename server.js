@@ -43,13 +43,17 @@ app.get('/files', (req, res) => {
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>File List</title>
+        <!-- 引入 Bootstrap CSS -->
+        <link href="/css/bootstrap.min.css" rel="stylesheet">
       </head>
       <body>
-        <h1>Uploaded Files</h1>
-        <ul>
-          ${files.map(file => `<li><a href="/uploads/${file}">${file}</a></li>`).join('')}
-        </ul>
-        <a href="/">Upload another file</a>
+        <div class="container">
+          <h1 class="mt-5">Uploaded Files</h1>
+          <ul>
+            ${files.map(file => `<li><a href="/uploads/${file}">${file}</a></li>`).join('')}
+          </ul>
+          <a href="/" class="mt-3 btn btn-secondary">Upload another file</a>
+        </div>
       </body>
       </html>
     `);
