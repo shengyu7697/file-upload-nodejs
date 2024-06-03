@@ -12,8 +12,12 @@ const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, 'uploads/');
   },
+  //filename: (req, file, cb) => {
+  //  cb(null, `${Date.now()}-${file.originalname}`); // 日期加原檔名
+  //}
   filename: (req, file, cb) => {
-    cb(null, `${Date.now()}-${file.originalname}`);
+    // 使用Buffer儲存二進制編碼後再解碼, 避免中文檔名出現亂碼
+    cb(null, `${Buffer.from(file.originalname,'binary').toString()}`)
   }
 });
 
