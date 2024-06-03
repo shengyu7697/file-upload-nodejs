@@ -39,7 +39,15 @@ app.get('/files', (req, res) => {
     if (err) {
       return res.status(500).send('Unable to scan files.');
     }
-    const fileList = files.map(file => `<li><a href="/uploads/${file}">${file}</a></li>`).join('');
+    const tableRows = files.map(file => `
+      <tr>
+        <td><a href="/uploads/${file}">${file}</a></td>
+        <td>
+          <form action="/delete/${encodeURIComponent(file)}" method="post">
+            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+          </form>
+        </td>
+      </tr>`).join('');
     const html = `
       <!DOCTYPE html>
       <html lang="en">
@@ -52,13 +60,35 @@ app.get('/files', (req, res) => {
       <body>
         <div class="container">
           <h1 class="mt-5">Uploaded Files</h1>
-          <ul>${fileList}</ul>
+          <table class="table">
+            <thead>
+              <tr>
+                <th>File Name</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${tableRows}
+            </tbody>
+          </table>
           <a href="/" class="btn btn-secondary mt-3">Upload another file</a>
         </div>
       </body>
       </html>
     `;
     res.send(html);
+  });
+});
+
+// 處理刪除文件的路由
+app.post('/delete/:fileName', (req, res) => {
+  const fileName = decodeURIComponent(req.params.fileName);
+  const filePath = path.join(__dirname, 'uploads', fileName);
+  fs.unlink(filePath, (err) => {
+    if (err) {
+      return res.status(500).send('Unable to delete file.');
+    }
+    res.redirect('/files');
   });
 });
 
