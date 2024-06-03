@@ -5,7 +5,9 @@ const fs = require('fs');
 
 const app = express();
 const PORT = 3000;
-const HOST = '0.0.0.0'; // 監聽所有網路介面
+
+// 設定靜態檔案服務
+app.use(express.static(path.join(__dirname, 'public')));
 
 // 設定 multer 的儲存引數
 const storage = multer.diskStorage({
@@ -23,9 +25,6 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-// 設定靜態檔案服務
-app.use(express.static(path.join(__dirname, 'public')));
-
 // 處理文件上傳的路由
 app.post('/upload', upload.single('file'), (req, res) => {
   if (!req.file) {
@@ -40,27 +39,26 @@ app.get('/files', (req, res) => {
     if (err) {
       return res.status(500).send('Unable to scan files.');
     }
-    res.send(`
+    const fileList = files.map(file => `<li><a href="/uploads/${file}">${file}</a></li>`).join('');
+    const html = `
       <!DOCTYPE html>
       <html lang="en">
       <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>File List</title>
-        <!-- 引入 Bootstrap CSS -->
-        <link href="/css/bootstrap.min.css" rel="stylesheet">
+        <title>Uploaded Files</title>
+        <link rel="stylesheet" href="/css/bootstrap.min.css">
       </head>
       <body>
         <div class="container">
           <h1 class="mt-5">Uploaded Files</h1>
-          <ul>
-            ${files.map(file => `<li><a href="/uploads/${file}">${file}</a></li>`).join('')}
-          </ul>
-          <a href="/" class="mt-3 btn btn-secondary">Upload another file</a>
+          <ul>${fileList}</ul>
+          <a href="/" class="btn btn-secondary mt-3">Upload another file</a>
         </div>
       </body>
       </html>
-    `);
+    `;
+    res.send(html);
   });
 });
 
@@ -69,5 +67,5 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // 啟動伺服器
 app.listen(PORT, () => {
-  console.log(`Server is running on http://${HOST}:${PORT}`);
+  console.log(`Server is running on http://localhost:${PORT}`);
 });
