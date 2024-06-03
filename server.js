@@ -1,6 +1,7 @@
 const express = require('express');
 const multer = require('multer');
 const path = require('path');
+const fs = require('fs');
 
 const app = express();
 const PORT = 3000;
@@ -26,10 +27,39 @@ app.post('/upload', upload.single('file'), (req, res) => {
   if (!req.file) {
     return res.status(400).send('No file uploaded.');
   }
-  res.send(`File uploaded: ${req.file.originalname}`);
+  res.redirect('/files');
 });
 
+// 處理顯示文件列表的路由
+app.get('/files', (req, res) => {
+  fs.readdir('uploads', (err, files) => {
+    if (err) {
+      return res.status(500).send('Unable to scan files.');
+    }
+    res.send(`
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>File List</title>
+      </head>
+      <body>
+        <h1>Uploaded Files</h1>
+        <ul>
+          ${files.map(file => `<li><a href="/uploads/${file}">${file}</a></li>`).join('')}
+        </ul>
+        <a href="/">Upload another file</a>
+      </body>
+      </html>
+    `);
+  });
+});
+
+// 設定靜態檔案服務以提供上傳的文件
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 // 啟動伺服器
-app.listen(PORT, HOST, () => {
-    console.log(`Server is running on http://${HOST}:${PORT}`);
+app.listen(PORT, () => {
+  console.log(`Server is running on http://${HOST}:${PORT}`);
 });
