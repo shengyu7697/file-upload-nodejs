@@ -4,6 +4,7 @@ const path = require('path');
 
 const app = express();
 const PORT = 3000;
+const HOST = '0.0.0.0'; // 監聽所有網路介面
 
 // 設定 multer 的儲存引數
 const storage = multer.diskStorage({
@@ -29,6 +30,6 @@ app.post('/upload', upload.single('file'), (req, res) => {
 });
 
 // 啟動伺服器
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+app.listen(PORT, HOST, () => {
+    console.log(`Server is running on http://${HOST}:${PORT}`);
 });
